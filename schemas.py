@@ -1,18 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
+from flask_openapi3 import FileStorage
 
-# ── Nested objects ──────────────────────────
-
-class PDFContent(BaseModel):
-    content: str = Field(..., example="JVBERi0xLjQKJcfs...")
-
-class XMLContent(BaseModel):
-    content: str = Field(..., example="PD94bWwgdmVyc2lvbj0iMS4wIj8+")
-
-class Attachment(BaseModel):
-    content: str = Field(..., example="JVBERi0xLjQKJcfs...")
-    mimeType: Optional[str] = Field(None, example="application/pdf")
-    filename: Optional[str] = Field(None, example="file.pdf")
 
 # ── Request bodies ──────────────────────────────────────────
 
@@ -21,14 +10,15 @@ class RegisterRequest(BaseModel):
     password: str   = Field(..., min_length=6, example="password123")
     name: Optional[str] = Field(None, example="John Doe")
 
-class GeneratePDFA3Request(BaseModel):
-    pdf: PDFContent
-    xml: XMLContent
-    lang: Optional[str] = Field(None, example="en-US")
-    afrelationship: Optional[str] = Field(None, example="Data")
-    attachments: Optional[List[Attachment]] = []
+class GeneratePDFA3Form(BaseModel):
+    pdf: FileStorage          
+    xml: FileStorage        
+    attachments: List[FileStorage] = []  
 
-
+    model_config = {"arbitrary_types_allowed": True}
+    
+class DownloadPDFA3Request(BaseModel):
+    content: str  # base64 encoded PDF
 # ── Responses ───────────────────────────────────────────────
 
 class SuccessResponse(BaseModel):

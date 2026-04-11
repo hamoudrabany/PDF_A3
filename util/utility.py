@@ -34,3 +34,8 @@ def apply_pdfa3_compliance(writer: PdfWriter):
     catalog = writer._root_object
     catalog[NameObject("/MarkInfo")] = mark_info
     catalog[NameObject("/PageMode")] = NameObject("/UseAttachments")
+
+
+def file_to_base64(file_storage):
+    file_storage.seek(0)
+    return base64.b64encode(file_storage.read()).decode()

@@ -1,11 +1,10 @@
 import io
-import uuid
 import base64
 from flask import request, jsonify, send_file
 from pypdf import PdfReader, PdfWriter
-from util.utility import validate_and_decode_base64, apply_pdfa3_compliance
+from util.utility import validate_and_decode_base64, apply_pdfa3_compliance, file_to_base64
 from flask_openapi3 import APIBlueprint, Tag
-from schemas import ErrorResponse, GeneratePDFA3Request, GeneratePDFA3Response
+from schemas import ErrorResponse, GeneratePDFA3Response, GeneratePDFA3Form, DownloadPDFA3Request
 
 # Tag groups the endpoints in Swagger UI
 pdf_a3_tag = Tag(name="PDF-A3", description="PDF/A-3 compliance and management")
@@ -23,13 +22,33 @@ pdf_a3  = APIBlueprint("pdf_a3", __name__, url_prefix="/pdf-a3")
         403: ErrorResponse,
         500: ErrorResponse
     })
-def generate_pdfa3(body: GeneratePDFA3Request):
-        
-    payload = body.dict()
-    
+def generate_pdfa3(form: GeneratePDFA3Form):
+
+    pdf_file = request.files.get("pdf")
+    xml_file = request.files.get("xml")
+    attachments = request.files.getlist("attachments")
+
     # 1. Validate required fields
-    if not payload.get("pdf") or not payload.get("xml"):
+    if not pdf_file or not xml_file:
         return jsonify({"detail": "Missing pdf or xml field"}), 400
+
+    payload = {
+        "pdf": {
+            "content": file_to_base64(pdf_file)
+        },
+        "xml": {
+            "content": file_to_base64(xml_file)
+        },
+        "xml_filename": xml_file.filename or "factur-x.xml",
+        "attachments": []
+    }
+
+    for attach in attachments:
+        payload["attachments"].append({
+            "filename": attach.filename,
+            "content": file_to_base64(attach)
+        })
+    
 
     xml_filename = payload.get("xml_filename", "factur-x.xml")
     attachments = payload.get("attachments", [])
@@ -87,3 +106,20 @@ def generate_pdfa3(body: GeneratePDFA3Request):
     except Exception as e:
         # Handle PDF corruption or internal processing errors
         return jsonify({"detail": f"Internal processing error: {str(e)}"}), 500
+    
+
+# Download endpoint to return the PDF/A-3 file as an attachment
+@pdf_a3.post("/download", tags=[pdf_a3_tag], summary="Download a base64 PDF as a file", responses={
+        400: ErrorResponse,
+})
+def download_pdfa3(body: DownloadPDFA3Request):
+    try:
+        pdf_bytes = base64.b64decode(body.content)
+        return send_file(
+            io.BytesIO(pdf_bytes),
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name="output_pdfa3.pdf"
+        )
+    except Exception as e:
+        return jsonify({"detail": f"Failed to decode: {str(e)}"}), 400
