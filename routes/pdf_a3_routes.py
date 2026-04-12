@@ -5,6 +5,7 @@ from pypdf import PdfReader, PdfWriter
 from util.utility import validate_and_decode_base64, apply_pdfa3_compliance, file_to_base64
 from flask_openapi3 import APIBlueprint, Tag
 from schemas import ErrorResponse, GeneratePDFA3Response, GeneratePDFA3Form, DownloadPDFA3Request
+from middleware.auth_middleware import verify_token
 
 # Tag groups the endpoints in Swagger UI
 pdf_a3_tag = Tag(name="PDF-A3", description="PDF/A-3 compliance and management")
@@ -21,7 +22,8 @@ pdf_a3  = APIBlueprint("pdf_a3", __name__, url_prefix="/pdf-a3")
         401: ErrorResponse,
         403: ErrorResponse,
         500: ErrorResponse
-    })
+    }, security=[{"BearerAuth": []}])
+@verify_token
 def generate_pdfa3(form: GeneratePDFA3Form):
 
     pdf_file = request.files.get("pdf")
@@ -111,7 +113,8 @@ def generate_pdfa3(form: GeneratePDFA3Form):
 # Download endpoint to return the PDF/A-3 file as an attachment
 @pdf_a3.post("/download", tags=[pdf_a3_tag], summary="Download a base64 PDF as a file", responses={
         400: ErrorResponse,
-})
+}, security=[{"BearerAuth": []}])
+@verify_token
 def download_pdfa3(body: DownloadPDFA3Request):
     try:
         pdf_bytes = base64.b64decode(body.content)

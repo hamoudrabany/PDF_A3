@@ -10,6 +10,22 @@ class RegisterRequest(BaseModel):
     password: str   = Field(..., min_length=6, example="password123")
     name: Optional[str] = Field(None, example="John Doe")
 
+class RegisterResponse(BaseModel):
+    success: bool = True
+    message: str  = Field(..., example="User registered successfully")
+    uid: str      = Field(..., example="abc123uid")
+    email: str    = Field(..., example="user@example.com")
+
+class LoginRequest(BaseModel):
+    email: EmailStr = Field(..., example="user@example.com")
+    password: str = Field(..., example="password123")
+
+class LoginResponse(BaseModel):
+    success: bool = Field(..., example=True)
+    id_token: str = Field(..., example="id_token_example")
+    refresh_token: str = Field(..., example="refresh_token_example")
+    expires_in: str = Field(..., example="expires_in_example")
+
 class GeneratePDFA3Form(BaseModel):
     pdf: FileStorage          
     xml: FileStorage        
@@ -24,14 +40,6 @@ class DownloadPDFA3Request(BaseModel):
 class SuccessResponse(BaseModel):
     success: bool = True
     message: str  = Field(..., example="Operation completed")
-
-
-class RegisterResponse(BaseModel):
-    success: bool = True
-    message: str  = Field(..., example="User registered successfully")
-    uid: str      = Field(..., example="abc123uid")
-    email: str    = Field(..., example="user@example.com")
-
 
 class ErrorResponse(BaseModel):
     success: bool = False

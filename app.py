@@ -14,7 +14,7 @@ info = Info(
     title="PDF A-3 API",
     version="1.0.0",
     description="REST API with Firebase Authentication. "
-                "Use `/auth/register` to create a user, sign in on the client to get a token, "
+                "Use `/auth/register` to create a user, and use `/auth/token` to sign in on the client to get a token, "
                 "then pass it as `Authorization: Bearer <token>` on protected routes."
 )
 

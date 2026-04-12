@@ -37,17 +37,3 @@ def verify_token(f):
 
         return f(*args, **kwargs)
     return decorated_function
-
-
-def verify_admin(f):
-    """
-    Decorator to verify the user is an admin (has custom claim).
-    Must be used AFTER @verify_token.
-    """
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        user = getattr(g, "user", None)
-        if not user or not user.get("admin"):
-            return jsonify({"success": False, "error": "Admin privileges required."}), 403
-        return f(*args, **kwargs)
-    return decorated_function
