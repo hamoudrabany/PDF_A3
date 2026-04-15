@@ -126,3 +126,5 @@ def download_pdfa3(body: DownloadPDFA3Request):
         )
     except Exception as e:
         return jsonify({"detail": f"Failed to decode: {str(e)}"}), 400
+    
+# Implemenet Extract endpoint to return the XML, pdf and attachments from a PDF/A-3 file
