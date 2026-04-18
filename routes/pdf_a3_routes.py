@@ -26,7 +26,7 @@ class ExtractRequest(BaseModel):
              summary="Generate PDF/A-3 compliant file with attachments", 
              responses={200: GeneratePDFA3Response, 400: ErrorResponse, 500: ErrorResponse},
              security=[{"BearerAuth": []}])
-# @verify_token
+@verify_token
 def generate_pdfa3(form: GeneratePDFA3Form):
     pdf_file = request.files.get("pdf")
     xml_file = request.files.get("xml")
@@ -70,7 +70,7 @@ def generate_pdfa3(form: GeneratePDFA3Form):
              tags=[pdf_a3_tag], 
              summary="Download a base64 PDF as a file",
              security=[{"BearerAuth": []}])
-# @verify_token
+@verify_token
 def download_pdfa3(body: DownloadPDFA3Request):
     try:
         pdf_bytes = base64.b64decode(body.content)
@@ -89,7 +89,7 @@ def download_pdfa3(body: DownloadPDFA3Request):
              tags=[pdf_a3_tag], 
              summary="Extract embedded files from PDF/A-3",
              security=[{"BearerAuth": []}])
-# @verify_token
+@verify_token
 def extract_pdfa3(body: ExtractRequest):
     try:
         content = body.content

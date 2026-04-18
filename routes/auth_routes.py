@@ -35,7 +35,7 @@ def register(body: RegisterRequest):
         user = auth.create_user(
             email=body.email,
             password=body.password,
-            display_name=body.name or ""
+            # display_name=body.name or ""
         )
         return jsonify({
             "success": True,
