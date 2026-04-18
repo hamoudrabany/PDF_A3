@@ -39,7 +39,7 @@ def create_app():
     app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
     # Initialize Firebase
-    initialize_firebase()
+    # initialize_firebase()
 
     # Register blueprints
     app.register_api(auth_bp)
